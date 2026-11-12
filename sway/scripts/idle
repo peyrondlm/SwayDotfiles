@@ -1,0 +1,121 @@
+#!/bin/sh
+# Idle manager: lock, DPMS and audio-based inhibition.
+
+config="${XDG_CONFIG_HOME:-$HOME/.config}/sway/idle.conf"
+. "$config" 2>/dev/null
+
+LOCK_TIMEOUT=${LOCK_TIMEOUT:-300}
+DPMS_TIMEOUT=${DPMS_TIMEOUT:-600}
+MEDIA_GRACE=${MEDIA_GRACE:-30}
+POLL_INTERVAL=${POLL_INTERVAL:-15}
+INHIBIT_FULLSCREEN=${INHIBIT_FULLSCREEN:-0}
+
+self=$(readlink -f "$0")
+lock="$HOME/.config/sway/scripts/lock.sh"
+
+media_active() {
+  LC_ALL=C pactl list sink-inputs 2>/dev/null | grep -q 'Corked: no' && return 0
+  if [ "$INHIBIT_FULLSCREEN" = 1 ]; then
+    swaymsg -t get_tree 2>/dev/null |
+      jq -e '.. | objects | select(.focused == true and (.fullscreen_mode // 0) > 0)' >/dev/null && return 0
+  fi
+  return 1
+}
+
+session_id() {
+  pid=$(basename "${SWAYSOCK:-}" 2>/dev/null | awk -F. '{print $3}')
+  [ -n "$pid" ] || pid=$(pgrep -x sway | head -1)
+  [ -n "$pid" ] || return 1
+  sed -n 's#.*session-\([0-9][0-9]*\)\.scope.*#\1#p' "/proc/$pid/cgroup" 2>/dev/null | head -1
+}
+
+session_active() {
+  sid=$(session_id)
+  [ -n "$sid" ] || return 0
+  [ "$(loginctl show-session "$sid" -p Active --value 2>/dev/null)" != no ]
+}
+
+inhibit() {
+  if [ -n "$inhibit_pid" ] && kill -0 "$inhibit_pid" 2>/dev/null; then
+    return
+  fi
+  inhibit_pid=""
+  systemd-inhibit --what=idle --mode=block \
+    --who="sway-idle" --why="Media playback in progress" \
+    sleep infinity >/dev/null 2>&1 &
+  inhibit_pid=$!
+}
+
+uninhibit() {
+  [ -z "$inhibit_pid" ] && return
+  pkill -TERM -P "$inhibit_pid" 2>/dev/null
+  kill -TERM "$inhibit_pid" 2>/dev/null
+  wait "$inhibit_pid" 2>/dev/null
+  inhibit_pid=""
+}
+
+run_daemon() {
+  swaymsg -t get_version >/dev/null 2>&1 || exit 1
+
+  inhibit_pid=""
+  swayidle_pid=""
+  last_media=0
+
+  cleanup() {
+    [ -n "$swayidle_pid" ] && kill "$swayidle_pid" 2>/dev/null
+    uninhibit
+  }
+  trap 'cleanup; exit 0' INT TERM
+  trap cleanup EXIT
+
+  swayidle -w \
+    timeout "$LOCK_TIMEOUT" "$self action lock" \
+    timeout "$DPMS_TIMEOUT" "$self action dpms-off" resume 'swaymsg "output * dpms on"' \
+    before-sleep "$lock" &
+  swayidle_pid=$!
+  sleep 0.5
+  kill -0 "$swayidle_pid" 2>/dev/null || exit 1
+
+  while :; do
+    if session_active; then
+      if media_active; then
+        inhibit
+        last_media=$(date +%s)
+      elif [ -n "$inhibit_pid" ] && [ $(( $(date +%s) - last_media )) -ge "$MEDIA_GRACE" ]; then
+        uninhibit
+      fi
+    else
+      uninhibit
+    fi
+    sleep "$POLL_INTERVAL" &
+    wait $!
+    swaymsg -t get_version >/dev/null 2>&1 || exit 0
+    kill -0 "$swayidle_pid" 2>/dev/null || exit 1
+  done
+}
+
+case "$1" in
+daemon)
+  run_daemon
+  ;;
+action)
+  case "$2" in
+  lock)
+    media_active && exit 0
+    "$lock" &
+    ;;
+  dpms-off)
+    media_active && exit 0
+    swaymsg "output * dpms off"
+    ;;
+  *)
+    echo "Usage: $0 action {lock|dpms-off}" >&2
+    exit 1
+    ;;
+  esac
+  ;;
+*)
+  echo "Usage: $0 daemon|action" >&2
+  exit 1
+  ;;
+esac

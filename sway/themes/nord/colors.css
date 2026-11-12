@@ -1,0 +1,10 @@
+/* Theme palette: single source for Waybar and wofi (thememenu expands it). */
+@define-color bg #2e3440;
+@define-color bg_alt #3b4252;
+@define-color fg #d8dee9;
+@define-color accent #ebcb8b;
+@define-color secondary #81a1c1;
+@define-color alert #d08770;
+@define-color disabled #4c566a;
+@define-color border #3b4252;
+@define-color entry_fg #b48ead;

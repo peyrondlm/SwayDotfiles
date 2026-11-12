@@ -1,0 +1,15 @@
+#!/bin/sh
+# keylayout — Print the active Sway keyboard layout as a short label.
+# The index maps to the order configured in sway/config:
+#   input * xkb_layout "es,latam,us"
+# Used by the Waybar custom/language module.
+
+idx=$(swaymsg -t get_inputs 2>/dev/null \
+    | jq -r '[.[] | select(.xkb_active_layout_index != null)][0].xkb_active_layout_index' 2>/dev/null)
+
+case "$idx" in
+    0) echo "ES"  ;;
+    1) echo "LAT" ;;
+    2) echo "US"  ;;
+    *) echo "${idx:-?}" ;;
+esac

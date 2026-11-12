@@ -1,0 +1,21 @@
+#!/bin/sh
+# Clipboard history picker (cliphist + wofi).
+# Prepends a "Clear history" entry: selecting it wipes the stored history,
+# selecting a clip copies it back, Esc cancels.
+
+CLEAR='󰆴  Clear history'
+
+sel=$( { printf '%s\n' "$CLEAR"; cliphist list; } | \
+    wofi --dmenu --insensitive --cache-file /dev/null --prompt Clipboard --columns 1 )
+
+case "$sel" in
+    "$CLEAR")
+        # Wipe the history and drop the DB file so BoltDB's sequence restarts
+        # at 1; then recreate an empty DB so `list` stays valid.
+        cliphist wipe
+        rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/cliphist/db"
+        printf '' | cliphist store
+        ;;
+    "")       exit 0 ;;
+    *)        printf '%s' "$sel" | cliphist decode | wl-copy ;;
+esac

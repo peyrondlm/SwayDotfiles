@@ -1,0 +1,13 @@
+#!/bin/sh
+# Screenshot tool: grim + slurp + wl-copy, saved to ~/Screenshots.
+
+dir="$HOME/Screenshots"
+mkdir -p "$dir"
+f="$dir/$(date +%F_%H-%M-%S).png"
+case "${1:-region}" in
+full) grim "$f" ;;
+*) grim -g "$(slurp)" "$f" ;;
+esac || exit 1
+wl-copy <"$f"
+notify-send -a screenshot -u low -i camera-photo -t 2000 \
+    "Screenshot" "Saved to $(basename "$f")"

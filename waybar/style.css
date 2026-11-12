@@ -1,0 +1,203 @@
+/* Waybar styling.
+ *
+ * The color block below is rewritten by ~/.config/sway/scripts/thememenu
+ * between the THEME markers (no @import, which Waybar/GTK handles unreliably).
+ * Do not edit the block by hand; edit themes/<name>/colors.css instead.
+ */
+
+/* THEME:BEGIN */
+/* Theme palette: single source for Waybar and wofi (thememenu expands it). */
+@define-color bg #080808;
+@define-color bg_alt #323437;
+@define-color fg #bdbdbd;
+@define-color accent #e3c78a;
+@define-color secondary #80a0ff;
+@define-color alert #f09479;
+@define-color disabled #949494;
+@define-color border #323437;
+@define-color entry_fg #ff5189;
+/* THEME:END */
+
+* {
+    font-family: "Roboto Mono Nerd Font", "JetBrainsMono Nerd Font", monospace;
+    font-size: 16px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: @bg;
+    color: @fg;
+    border-radius: 6px;
+    border: 2px solid @border;
+}
+
+tooltip {
+    background: @bg;
+    border: 1px solid @accent;
+    border-radius: 6px;
+}
+
+tooltip label {
+    color: @fg;
+}
+
+/* === WORKSPACES === */
+#workspaces button {
+    min-width: 14px;
+    padding: 0 5px;
+    margin: 2px 1px;
+    background: transparent;
+    background-image: none;
+    color: @secondary;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    text-shadow: none;
+    transition: none;
+}
+
+#workspaces button:hover {
+    background: transparent;
+    background-image: none;
+    box-shadow: none;
+    text-shadow: none;
+    transition: none;
+}
+
+#workspaces button.empty {
+    color: @disabled;
+    background-image: none;
+    transition: none;
+}
+
+#workspaces button.visible {
+    color: @secondary;
+    background-image: none;
+    transition: none;
+}
+
+/* Focused workspace (Waybar 0.12) */
+#workspaces button.focused,
+#workspaces button.active {
+    background: @bg_alt;
+    background-image: none;
+    color: @accent;
+    box-shadow: inset 0 -3px @accent;
+    transition: none;
+    font-weight: bold;
+}
+
+#workspaces button.urgent {
+    background: @alert;
+    background-image: none;
+    color: @bg;
+    transition: none;
+}
+
+/* === WINDOW TITLE === */
+#window {
+    color: @fg;
+    padding: 0 4px;
+}
+
+/* === SEPARATORS === */
+#custom-sep,
+#custom-sep.a,
+#custom-sep.b,
+#custom-sep.c,
+#custom-sep.d,
+#custom-sep.e,
+#custom-sep.f {
+    color: @disabled;
+    padding: 0 2px;
+}
+
+/* === MODULES === */
+#wireplumber,
+#memory,
+#cpu,
+#battery {
+    color: @fg;
+    padding: 0 6px;
+}
+
+#clock.date {
+    color: @fg;
+    padding: 0 6px;
+}
+
+#clock.hour {
+    color: @accent;
+    padding: 0 6px;
+}
+
+#keyboard-state {
+    color: @fg;
+    padding: 0;
+    margin: 0;
+}
+
+#keyboard-state label.locked {
+    color: @bg;
+    background: @alert;
+    border-radius: 4px;
+    padding: 0 6px;
+    margin: 2px 0;
+}
+
+#custom-language {
+    color: @secondary;
+    padding: 0 6px;
+}
+
+#custom-screenshot {
+    color: @secondary;
+    padding: 0 6px;
+}
+
+#custom-powermenu {
+    color: @alert;
+    padding: 0 6px;
+}
+
+#tray {
+    padding: 0 4px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background: @alert;
+    border-radius: 4px;
+}
+
+/* === BATTERY STATES === */
+#battery.charging,
+#battery.plugged {
+    color: @secondary;
+}
+
+#battery.warning:not(.charging) {
+    color: @alert;
+}
+
+#battery.critical:not(.charging) {
+    color: @bg;
+    background: @alert;
+    border-radius: 4px;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+@keyframes blink {
+    to {
+        background: transparent;
+        color: @alert;
+    }
+}

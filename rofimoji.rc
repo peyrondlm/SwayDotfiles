@@ -1,0 +1,5 @@
+selector = wofi
+action = type
+typer = wtype
+skin-tone = neutral
+selector-args = --cache-file /dev/null

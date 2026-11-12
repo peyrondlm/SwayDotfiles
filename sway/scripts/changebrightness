@@ -1,0 +1,46 @@
+#!/bin/bash
+
+BRIGHT_STEP=5
+
+# brightnessctl prefix so the user doesn't need sudo (add yourself to the
+# `video` group otherwise).
+BCTL="brightnessctl"
+
+get_icon() {
+  if [ "$1" -le 10 ]; then
+    echo "notification-display-brightness-low"
+  elif [ "$1" -le 60 ]; then
+    echo "notification-display-brightness-medium"
+  elif [ "$1" -le 90 ]; then
+    echo "notification-display-brightness-high"
+  else
+    echo "notification-display-brightness-full"
+  fi
+}
+
+notify_brightness() {
+  local pct icon
+  pct=$($BCTL -m | awk -F, '{gsub(/%/,"",$4); print $4}')
+  icon=$(get_icon "$pct")
+  notify-send -a changebrightness -u low \
+    -h string:x-canonical-private-synchronous:brightness \
+    -h "int:value:$pct" \
+    -i "$icon" \
+    -t 2000 \
+    "Brightness ${pct}%"
+}
+
+case "$1" in
+up)
+  $BCTL set "${BRIGHT_STEP}%+" -q
+  notify_brightness
+  ;;
+down)
+  $BCTL set "${BRIGHT_STEP}%-" -q
+  notify_brightness
+  ;;
+*)
+  echo "Usage: $0 {up|down}" >&2
+  exit 1
+  ;;
+esac

@@ -1,0 +1,12 @@
+# Wofi configuration
+show=drun
+prompt=Launch:
+width=45%
+height=60%
+location=center
+allow_markup=true
+allow_images=true
+insensitive=true
+image_size=16
+matching=contains
+columns=2

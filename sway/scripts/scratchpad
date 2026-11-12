@@ -1,0 +1,14 @@
+#!/bin/bash
+
+CLASS="${1:-scratchpad}"
+CMD="${2:-}"
+
+if swaymsg -t get_tree | jq -e --arg c "$CLASS" '.. | objects | select(.app_id? == $c)' >/dev/null 2>&1; then
+  swaymsg "[app_id=\"$CLASS\"] scratchpad show"
+else
+  if [ -n "$CMD" ]; then
+    alacritty --class "$CLASS" --title "$CLASS" -e $CMD &
+  else
+    alacritty --class "$CLASS" --title "$CLASS" &
+  fi
+fi

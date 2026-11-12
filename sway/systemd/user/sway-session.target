@@ -1,0 +1,7 @@
+[Unit]
+Description=Sway session
+Documentation=man:systemd.special(7)
+# NOTE: intentionally NOT BindsTo=graphical-session.target. On systems where a
+# desktop session also activates graphical-session.target (e.g. KDE Plasma),
+# binding to it would drag session-specific units (kde-baloo, foot-server, ...)
+# into Sway. Sway starts/stops this target explicitly.

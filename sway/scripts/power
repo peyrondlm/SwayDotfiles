@@ -1,0 +1,12 @@
+#!/bin/bash
+
+chosen=$(printf '%s\n' "[Cancel]" "Logout" "Shutdown" "Reboot" |
+  wofi --dmenu --insensitive --prompt "Power Menu" --cache-file /dev/null \
+    --columns 1 --width 220 --height 260)
+
+case "$chosen" in
+"Logout") "$HOME/.config/sway/scripts/logout.sh" ;;
+"Shutdown") systemctl poweroff ;;
+"Reboot") systemctl reboot ;;
+*) exit 0 ;;
+esac

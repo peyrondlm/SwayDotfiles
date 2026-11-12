@@ -1,0 +1,49 @@
+#!/bin/bash
+
+CONFIG="$HOME/.config/sway/config"
+WOFI_STYLE="$HOME/.config/wofi/style.css"
+
+ACCENT=$(grep -oE '@define-color accent #[0-9a-fA-F]{6}' "$WOFI_STYLE" 2>/dev/null | head -1 | grep -oE '#[0-9a-fA-F]{6}')
+ACCENT=${ACCENT:-#e3c78a}
+
+rows=$(awk -v accent="$ACCENT" '
+    function xmlesc(s) {
+        gsub(/&/, "\\&amp;", s)
+        gsub(/</, "\\&lt;", s)
+        return s
+    }
+    BEGIN { last = "" }
+
+    # Section marker: # === NAME ===
+    /^#[[:space:]]*===[[:space:]]+.+[[:space:]]+===[[:space:]]*$/ {
+        s = $0
+        sub(/^#[[:space:]]*===[[:space:]]+/, "", s)
+        sub(/[[:space:]]+===[[:space:]]*$/, "", s)
+        printf "<span size=\"large\" weight=\"bold\" foreground=\"%s\">-- %s --</span>\n", accent, xmlesc(s)
+        last = ""
+        next
+    }
+
+    # Regular comment -> description
+    /^#/ { last = substr($0, 3); next }
+
+    # Bindsym line
+    /^bindsym[[:space:]]/ && last {
+        line = $0
+        sub(/^bindsym[[:space:]]+/, "", line)
+        n = index(line, " ")
+        if (n > 0) {
+            key = substr(line, 1, n-1)
+            gsub(/\$mod/, "Super", key)
+            gsub(/Mod1/, "Alt", key)
+            gsub(/\+/, " + ", key)
+            printf "<b>%-26s</b>  %s\n", xmlesc(key), xmlesc(last)
+        }
+        last = ""
+        next
+    }
+
+    { last = "" }
+' "$CONFIG")
+
+echo "$rows" | wofi --dmenu --allow-markup --insensitive --prompt "Keybindings" --cache-file /dev/null --columns 1 --width 900 --height 700

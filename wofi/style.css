@@ -1,0 +1,76 @@
+/* Wofi styling.
+ *
+ * The color block below is rewritten by ~/.config/sway/scripts/thememenu
+ * between the THEME markers. Edit themes/<name>/colors.css instead (same
+ * palette as Waybar).
+ */
+
+/* THEME:BEGIN */
+/* Theme palette: single source for Waybar and wofi (thememenu expands it). */
+@define-color bg #080808;
+@define-color bg_alt #323437;
+@define-color fg #bdbdbd;
+@define-color accent #e3c78a;
+@define-color secondary #80a0ff;
+@define-color alert #f09479;
+@define-color disabled #949494;
+@define-color border #323437;
+@define-color entry_fg #ff5189;
+/* THEME:END */
+
+window {
+    background-color: @bg;
+    border: 2px solid @accent;
+    border-radius: 0;
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 14px;
+}
+
+#outer-box {
+    margin: 8px;
+}
+
+#input {
+    margin: 6px;
+    padding: 6px 8px;
+    background-color: @bg;
+    color: @entry_fg;
+    border: 1px solid @accent;
+    border-radius: 6px;
+}
+
+#prompt {
+    color: @secondary;
+    margin: 0 6px;
+}
+
+#scroll {
+    margin-top: 6px;
+}
+
+#entry {
+    padding: 4px 8px;
+    border-radius: 5px;
+    color: @fg;
+}
+
+#entry:selected {
+    background-color: @accent;
+    color: @bg;
+}
+
+#entry:selected #text {
+    color: @bg;
+}
+
+#text {
+    color: @fg;
+}
+
+#text:selected {
+    color: @bg;
+}
+
+#img {
+    margin-right: 6px;
+}

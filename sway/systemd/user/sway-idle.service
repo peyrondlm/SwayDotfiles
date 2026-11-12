@@ -1,0 +1,12 @@
+[Unit]
+Description=Sway idle manager
+Documentation=man:swayidle(1)
+PartOf=sway-session.target
+After=sway-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.config/sway/scripts/idle daemon
+Restart=on-failure
+RestartSec=2
+KillMode=control-group

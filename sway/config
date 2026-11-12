@@ -1,0 +1,224 @@
+# ~/.config/sway/config
+
+set $mod Mod4
+
+font pango:JetBrainsMono Nerd Font 12
+
+include $HOME/.config/sway/workspaces.conf
+include $HOME/.config/sway/rules.conf
+
+include $HOME/.config/sway/colors.conf
+include $HOME/.config/sway/wallpaper.conf
+
+# === SESSION ENVIRONMENT + SYSTEMD SESSION TARGET ===
+# Import the session environment into the systemd user manager and start our
+# sway session target.
+exec "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP SWAYSOCK; systemctl --user start sway-session.target"
+exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway SWAYSOCK
+# Stop the session target when sway exits, taking its services down.
+exec swaymsg -t subscribe '["shutdown"]' && systemctl --user stop sway-session.target
+
+# === INPUT ===
+input * xkb_numlock enabled
+input * xkb_layout "es,latam,us"
+input type:touchpad tap enabled
+input type:touchpad natural_scroll disabled
+seat * xcursor_theme Adwaita 24
+
+# === COMPOSITOR ===
+default_border pixel 4
+default_floating_border pixel 4
+hide_edge_borders smart
+gaps inner 5
+gaps outer 2
+
+# Add padding to window titles (visible in tabbed/stacked layouts)
+for_window [app_id=".*"] title_format "  %title"
+for_window [class=".*"] title_format "  %title"
+
+# === AUTOSTART ===
+exec_always ~/.config/sway/scripts/autostart.sh
+
+# Floating windows: hold $mod + left-drag to move, + right-drag to resize.
+floating_modifier $mod
+
+# === LAUNCH ===
+
+# Application Menu
+bindsym $mod+d exec wofi --show drun --no-actions
+# Terminal
+bindsym $mod+Return exec alacritty
+# Toggle Scratchpad Terminal
+bindsym $mod+Shift+Return exec ~/.config/sway/scripts/scratchpad
+# Named Scratchpad: Audio (Pulsemixer)
+bindsym $mod+Mod1+a exec ~/.config/sway/scripts/scratchpad pulsemixer pulsemixer
+# Browser (Firefox)
+bindsym $mod+b exec firefox
+# Private Browser
+bindsym $mod+Shift+b exec firefox --private-window
+# Keybinding Help
+bindsym $mod+slash exec ~/.config/sway/scripts/help
+# File Manager
+bindsym $mod+f exec thunar
+# Text Editor
+bindsym $mod+e exec geany
+# Image Editor
+bindsym $mod+g exec gimp
+# Screen Recording
+bindsym $mod+o exec obs
+# Clipboard history picker with a clear entry
+bindsym $mod+v exec ~/.config/sway/scripts/clipboard
+# Emoji Picker
+bindsym $mod+period exec rofimoji
+
+# === WINDOW STATE ===
+
+# Toggle Floating
+bindsym $mod+Shift+m floating toggle; border pixel 4
+# Toggle Fullscreen
+bindsym $mod+Shift+f fullscreen toggle
+
+# === WINDOW NAVIGATION ===
+
+# Focus Left
+bindsym $mod+h focus left
+# Focus Down
+bindsym $mod+j focus down
+# Focus Up
+bindsym $mod+k focus up
+# Focus Right
+bindsym $mod+l focus right
+# Move Window Left
+bindsym $mod+Shift+h move left
+# Move Window Down
+bindsym $mod+Shift+j move down
+# Move Window Up
+bindsym $mod+Shift+k move up
+# Move Window Right
+bindsym $mod+Shift+l move right
+# Focus Left (Arrow)
+bindsym $mod+Left focus left
+# Focus Down (Arrow)
+bindsym $mod+Down focus down
+# Focus Up (Arrow)
+bindsym $mod+Up focus up
+# Focus Right (Arrow)
+bindsym $mod+Right focus right
+# Move Window Left (Arrow)
+bindsym $mod+Shift+Left move left
+# Move Window Down (Arrow)
+bindsym $mod+Shift+Down move down
+# Move Window Up (Arrow)
+bindsym $mod+Shift+Up move up
+# Move Window Right (Arrow)
+bindsym $mod+Shift+Right move right
+
+# === WINDOW RESIZE ===
+
+# Resize Grow Width
+bindsym $mod+ctrl+h resize grow width 10 px
+# Resize Shrink Height
+bindsym $mod+ctrl+j resize shrink height 10 px
+# Resize Grow Height
+bindsym $mod+ctrl+k resize grow height 10 px
+# Resize Shrink Width
+bindsym $mod+ctrl+l resize shrink width 10 px
+# Resize Grow Width (Arrow)
+bindsym $mod+ctrl+Left resize grow width 10 px
+# Resize Shrink Height (Arrow)
+bindsym $mod+ctrl+Down resize shrink height 10 px
+# Resize Grow Height (Arrow)
+bindsym $mod+ctrl+Up resize grow height 10 px
+# Resize Shrink Width (Arrow)
+bindsym $mod+ctrl+Right resize shrink width 10 px
+
+# === LAYOUTS ===
+
+# Layout Tabbed
+bindsym $mod+w layout tabbed
+# Cycle Layout (split -> tabbed -> stacking)
+bindsym $mod+t layout toggle split tabbed stacking
+# Cycle tabs / siblings in current container
+bindsym Mod1+Tab focus next
+bindsym Mod1+Shift+Tab focus prev
+
+# === KEYBOARD LAYOUT ===
+
+# Cycle keyboard layout: es -> latam -> us
+bindsym $mod+Space exec swaymsg input '*' xkb_switch_layout next
+
+# === WM CONTROL ===
+
+# Reload Sway Config
+bindsym $mod+Shift+r reload; exec notify-send -a sway -u low -t 2000 "Sway" "Configuration reloaded"
+# Exit Sway
+bindsym $mod+Shift+q exec ~/.config/sway/scripts/logout.sh
+# Close Window
+bindsym $mod+q kill
+
+# === WORKSPACES ===
+
+# Switch to Workspace 1
+bindsym $mod+1 workspace number 1
+# Switch to Workspace 2
+bindsym $mod+2 workspace number 2
+# Switch to Workspace 3
+bindsym $mod+3 workspace number 3
+# Switch to Workspace 4
+bindsym $mod+4 workspace number 4
+# Switch to Workspace 5
+bindsym $mod+5 workspace number 5
+# Switch to Workspace 6
+bindsym $mod+6 workspace number 6
+
+# Move to Workspace 1
+bindsym $mod+Shift+1 move container to workspace number 1
+# Move to Workspace 2
+bindsym $mod+Shift+2 move container to workspace number 2
+# Move to Workspace 3
+bindsym $mod+Shift+3 move container to workspace number 3
+# Move to Workspace 4
+bindsym $mod+Shift+4 move container to workspace number 4
+# Move to Workspace 5
+bindsym $mod+Shift+5 move container to workspace number 5
+# Move to Workspace 6
+bindsym $mod+Shift+6 move container to workspace number 6
+
+# === MEDIA & BRIGHTNESS ===
+
+# Volume Up
+bindsym $mod+F12 exec ~/.config/sway/scripts/changevolume up
+# Volume Down
+bindsym $mod+F11 exec ~/.config/sway/scripts/changevolume down
+# Toggle Mute
+bindsym $mod+F10 exec ~/.config/sway/scripts/changevolume mute
+# Dedicated Key for Volume Up
+bindsym XF86AudioRaiseVolume exec ~/.config/sway/scripts/changevolume up
+# Dedicated Key for Volume Down
+bindsym XF86AudioLowerVolume exec ~/.config/sway/scripts/changevolume down
+# Dedicated Key for Mute
+bindsym XF86AudioMute exec ~/.config/sway/scripts/changevolume mute
+# Brightness Up (Media Key)
+bindsym XF86MonBrightnessUp exec ~/.config/sway/scripts/changebrightness up
+# Brightness Down (Media Key)
+bindsym XF86MonBrightnessDown exec ~/.config/sway/scripts/changebrightness down
+
+# === SCREENSHOTS ===
+
+# Region Select
+bindsym $mod+Shift+s exec ~/.config/sway/scripts/screenshot region
+# Fullscreen
+bindsym $mod+s exec ~/.config/sway/scripts/screenshot full
+
+# === SYSTEM ===
+
+# Theme Switcher
+bindsym $mod+Shift+t exec ~/.config/sway/scripts/thememenu
+# Shutdown or Reboot
+bindsym $mod+x exec ~/.config/sway/scripts/power
+# Lock Screen
+bindsym $mod+Shift+x exec ~/.config/sway/scripts/lock.sh --pause
+
+# === IDLE ===
+
+exec_always systemctl --user restart --no-block sway-idle.service
